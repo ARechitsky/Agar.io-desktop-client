@@ -1,4 +1,4 @@
-import javax.swing.Timer
+import javax.swing.{JOptionPane, Timer}
 import scala.swing._
 
 class GameWindow(address: String) extends MainFrame {
@@ -10,13 +10,19 @@ class GameWindow(address: String) extends MainFrame {
   title = "Agar.io desktop client"
 
   listenTo(canvas)
+  listenTo(networkAdapter)
   reactions += {
     case NeedMoveEvent(x, y) =>
-    networkAdapter.sendMoveTo(x, y)
+      networkAdapter.sendMoveTo(x, y)
     case NeedSplit() =>
-    networkAdapter sendSplit()
+      networkAdapter sendSplit()
     case NeedSpit() =>
-    networkAdapter sendSpit()
+      networkAdapter sendSpit()
+    case Disconnected(reason) =>
+      JOptionPane.showMessageDialog(null, "Disconnected: " + reason.getReasonPhrase)
+      close()
+    case ConnectionError(thr) =>
+      JOptionPane.showMessageDialog(null, "Connection error: " + thr.getLocalizedMessage)
 
   }
   contents = new BoxPanel(Orientation.Vertical) {

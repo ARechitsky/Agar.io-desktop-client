@@ -3,10 +3,15 @@ import java.nio.{ByteOrder, ByteBuffer}
 import java.util
 import javax.websocket._
 import javax.websocket.ClientEndpointConfig.Configurator
-import scala.swing.Color
+import scala.swing.event.Event
+import scala.swing.{Publisher, Color}
 import org.glassfish.tyrus.client.ClientManager
 
-class NetworkAdapter(address: String, state: GameState) {
+case class Disconnected(reason: CloseReason) extends Event
+
+case class ConnectionError(thr: Throwable) extends Event
+
+class NetworkAdapter(address: String, state: GameState) extends Publisher {
   private def createBuffer(size: Int) = ByteBuffer.allocate(size).order(ByteOrder.LITTLE_ENDIAN)
 
   private def Byte2Int(b: Byte) = (b.toInt + 256) % 256
@@ -32,12 +37,11 @@ class NetworkAdapter(address: String, state: GameState) {
       }
 
       override def onClose(session: Session, closeReason: CloseReason) {
-        println("closed")
-
+        publish(Disconnected(closeReason))
       }
 
       override def onError(session: Session, thr: Throwable) {
-        thr.printStackTrace()
+        publish(ConnectionError(thr))
       }
     }, ClientEndpointConfig.Builder.create().configurator(new Configurator {
       override def beforeRequest(headers: util.Map[String, util.List[String]]) {

@@ -2,11 +2,6 @@ import scala.swing.Color
 
 case class Field(xmin: Double, ymin: Double, xmax: Double, ymax: Double)
 
-object Field {
-  def createFromCenter(cx: Double, cy: Double, width: Double, height: Double) =
-    Field(cx - width / 2, cy - height / 2, cx + width / 2, cy + height / 2)
-}
-
 case class Point(x: Double, y: Double, size: Double, color: Color, isVirus: Boolean, name: String) {
   def *(m: Double) = Point(x * m, y * m, size * m, color, isVirus, name)
 
