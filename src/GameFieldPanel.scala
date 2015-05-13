@@ -1,4 +1,5 @@
 import java.awt
+import java.awt.geom.{Rectangle2D, Line2D, Ellipse2D}
 import java.awt.{BasicStroke, RenderingHints, Color}
 import javax.swing.Timer
 import scala.Some
@@ -77,7 +78,7 @@ class GameFieldPanel(state: GameState) extends Panel {
     g.translate(size.width / 2, size.height / 2)
     g.scale(ratio, ratio)
     g.translate(-cx.get, -cy.get)
-    g.drawOval(cx.get.toInt - 50, cy.get.toInt - 50, 100, 100)
+    //g.drawOval(cx.get.toInt - 50, cy.get.toInt - 50, 100, 100)
     currentPoints.toList sortBy (_._2.size) foreach {
       case (_, value: Point) => drawPoint(g, value)
     }
@@ -89,38 +90,38 @@ class GameFieldPanel(state: GameState) extends Panel {
   private def drawPoint(g: _root_.scala.swing.Graphics2D, point: Point) {
     val oldColor = g.getColor
     val oldStroke = g.getStroke
+    val cx = point.x
+    val cy = point.y
+    val d = point.size * 2
     val color = if (point.isVirus) new Color(0xA0000000 | (point.color.getRGB & 0x00FFFFFF), true) else point.color
     g.setColor(color)
-    val cx = point.x.toInt
-    val cy = point.y.toInt
-    val d = point.size.toInt * 2
-    g.fillOval(cx - d / 2, cy - d / 2, d, d)
-    g.setColor(color.darker())
-    g.drawOval(cx - d / 2, cy - d / 2, d, d)
-    g.setColor(Color.WHITE)
     g.setStroke(new BasicStroke(Math.min(5f, point.size / 10).toFloat))
-    g.drawLine(cx - d / 6, cy, cx + d / 6, cy)
-    g.drawLine(cx, cy - d / 6, cx, cy + d / 6)
+    g.fill(new Ellipse2D.Double(cx - d / 2, cy - d / 2, d, d))
+    g.setColor(color.darker())
+    g.draw(new Ellipse2D.Double(cx - d / 2, cy - d / 2, d, d))
+    g.setColor(Color.WHITE)
+    g.draw(new Line2D.Double(cx - d / 6, cy, cx + d / 6, cy))
+    g.draw(new Line2D.Double(cx, cy - d / 6, cx, cy + d / 6))
     g.setColor(oldColor)
     g.setStroke(oldStroke)
   }
 
   private def drawFieldBorder(g: _root_.scala.swing.Graphics2D) {
     g.setColor(Color.RED)
-    val x0 = state.field.xmin.toInt
-    val y0 = state.field.ymin.toInt
-    val x1 = state.field.xmax.toInt
-    val y1 = state.field.ymax.toInt
-    g.drawRect(x0, y0, x1 - x0, y1 - y0)
+    val x0 = state.field.xmin
+    val y0 = state.field.ymin
+    val x1 = state.field.xmax
+    val y1 = state.field.ymax
+    g.draw(new Rectangle2D.Double(x0, y0, x1 - x0, y1 - y0))
   }
 
   private def drawVisibilityBorder(g: _root_.scala.swing.Graphics2D) {
     g.setColor(new Color(0, 255, 0, 128))
-    val x0 = (cx.get - 960d / origRatio.get).toInt
-    val y0 = (cy.get - 540d / origRatio.get).toInt
-    val x1 = (cx.get + 960d / origRatio.get).toInt
-    val y1 = (cy.get + 540d / origRatio.get).toInt
-    g.drawRect(x0, y0, x1 - x0, y1 - y0)
+    val x0 = cx.get - 960d / origRatio.get
+    val y0 = cy.get - 540d / origRatio.get
+    val x1 = cx.get + 960d / origRatio.get
+    val y1 = cy.get + 540d / origRatio.get
+    g.draw(new Rectangle2D.Double(x0, y0, x1 - x0, y1 - y0))
   }
 
 }
