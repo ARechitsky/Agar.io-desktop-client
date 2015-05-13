@@ -1,7 +1,7 @@
 import javax.swing.Timer
 import scala.swing._
 
-class Game(address: String) extends MainFrame {
+class GameWindow(address: String) extends MainFrame {
   val state = new GameState
   val networkAdapter = new NetworkAdapter(address, state)
   val canvas = new GameFieldPanel(state)
@@ -11,12 +11,12 @@ class Game(address: String) extends MainFrame {
 
   listenTo(canvas)
   reactions += {
-    case NeedMoveEvent(_, x, y) =>
-      networkAdapter.sendMoveTo(x, y)
-    case NeedSplit(_) =>
-      networkAdapter sendSplit()
-    case NeedSpit(_) =>
-      networkAdapter sendSpit()
+    case NeedMoveEvent(x, y) =>
+    networkAdapter.sendMoveTo(x, y)
+    case NeedSplit() =>
+    networkAdapter sendSplit()
+    case NeedSpit() =>
+    networkAdapter sendSpit()
 
   }
   contents = new BoxPanel(Orientation.Vertical) {

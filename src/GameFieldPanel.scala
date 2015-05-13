@@ -4,13 +4,13 @@ import java.awt.{BasicStroke, RenderingHints, Color}
 import javax.swing.Timer
 import scala.Some
 import scala.swing.event.{Key, KeyPressed, Event, MouseMoved}
-import scala.swing.{Swing, Component, Panel}
+import scala.swing.{Swing, Panel}
 
-case class NeedMoveEvent(component: Component, x: Double, y: Double) extends Event
+case class NeedMoveEvent(x: Double, y: Double) extends Event
 
-case class NeedSplit(component: Component) extends Event
+case class NeedSplit() extends Event
 
-case class NeedSpit(component: Component) extends Event
+case class NeedSpit() extends Event
 
 class GameFieldPanel(state: GameState) extends Panel {
   private val fieldViewMultiplier = 1.3d
@@ -30,9 +30,9 @@ class GameFieldPanel(state: GameState) extends Panel {
       mousePoint = Some(point)
       sendMove()
     case KeyPressed(_, Key.Space, modifiers, _) =>
-      publish(NeedSplit(this))
+      publish(NeedSplit())
     case KeyPressed(_, Key.W, modifiers, _) =>
-      publish(NeedSpit(this))
+      publish(NeedSpit())
   }
 
   new Timer(100, Swing.ActionListener(_ => sendMove())).start()
@@ -43,7 +43,7 @@ class GameFieldPanel(state: GameState) extends Panel {
       case Some(p) =>
         val x = cx.get + (p.x.toDouble - size.width / 2d) / ratio
         val y = cy.get + (p.y.toDouble - size.height / 2d) / ratio
-        publish(NeedMoveEvent(this, x, y))
+        publish(NeedMoveEvent(x, y))
       case None =>
     }
   }
