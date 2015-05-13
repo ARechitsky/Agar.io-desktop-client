@@ -1,5 +1,22 @@
 import scala.swing._
 
 object Main extends SimpleSwingApplication {
-  override def top = new GameWindow("213.168.249.134:443")
+  val settingsWindow = new SettingsWindow
+  var gameWindow: GameWindow = null
+
+  listenTo(settingsWindow)
+
+  override def top = settingsWindow
+
+  reactions += {
+    case NeedToStartGame(a) =>
+      gameWindow = new GameWindow(a)
+      listenTo(gameWindow)
+      settingsWindow.visible = false
+      gameWindow.visible = true
+    case GameFinished() =>
+      deafTo(gameWindow)
+      gameWindow.close()
+      settingsWindow.visible = true
+  }
 }

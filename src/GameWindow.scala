@@ -1,7 +1,15 @@
 import javax.swing.{JOptionPane, Timer}
 import scala.swing._
+import scala.swing.event.Event
 
-class GameWindow(address: String) extends MainFrame {
+case class GameFinished() extends Event
+
+class GameWindow(address: String) extends Frame {
+
+  override def closeOperation() {
+    publish(GameFinished())
+  }
+
   val state = new GameState
   val networkAdapter = new NetworkAdapter(address, state)
   val canvas = new GameFieldPanel(state)
@@ -20,10 +28,10 @@ class GameWindow(address: String) extends MainFrame {
       networkAdapter sendSpit()
     case Disconnected(reason) =>
       JOptionPane.showMessageDialog(null, "Disconnected: " + reason.getReasonPhrase)
-      close()
+      publish(GameFinished())
     case ConnectionError(thr) =>
       JOptionPane.showMessageDialog(null, "Connection error: " + thr.getLocalizedMessage)
-
+      publish(GameFinished())
   }
   contents = new BoxPanel(Orientation.Vertical) {
     contents += canvas
