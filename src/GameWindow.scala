@@ -33,8 +33,10 @@ class GameWindow(address: String) extends Frame {
       networkAdapter sendSpit()
     case ButtonClicked(source) if source == playButton =>
       networkAdapter sendNick nickText.text
+      canvas.requestFocus()
     case StateChanged(_, s) =>
       playButton.enabled = s == State.Spectating
+      nickText.enabled = s == State.Spectating
     case Disconnected(reason) =>
       JOptionPane.showMessageDialog(null, "Disconnected: " + reason.getReasonPhrase)
       publish(GameFinished())
@@ -59,7 +61,6 @@ class GameWindow(address: String) extends Frame {
     fpsLabel.text = "FPS: %d, Data updates count: %d".format(state.fps, state.dps)
   }))
   secondTimer.start()
-  canvas.requestFocus()
 
   networkAdapter.connect()
 }
