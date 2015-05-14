@@ -1,5 +1,5 @@
 import java.awt
-import java.awt.geom.{Rectangle2D, Line2D, Ellipse2D}
+import java.awt.geom.{Arc2D, Rectangle2D, Line2D, Ellipse2D}
 import java.awt.{Font, BasicStroke, RenderingHints, Color}
 import javax.swing.Timer
 import scala.Some
@@ -136,6 +136,16 @@ class GameFieldPanel(state: GameState) extends Panel {
       g setColor Color.WHITE
       for (i <- 1 to state.top.size) {
         g.drawString("%d. %s".format(i, state.top(i).name), 5f, 9.5f + i * 10)
+      }
+    }
+    else if (state.teamSizes != null) {
+      val colors = List(new Color(0xFF3333), new Color(0x33FF33), new Color(0x3333FF))
+      var a = 0d
+      for ((v, c) <- state.teamSizes zip colors) {
+        g setColor c
+        val d = v * 360
+        g fill new Arc2D.Double(5, 5, 90, 90, a, d, Arc2D.PIE)
+        a += d
       }
     }
   }

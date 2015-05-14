@@ -151,8 +151,15 @@ class NetworkAdapter(address: String, state: GameState) extends Publisher {
         for (_ <- 1 to c) {
           val id = message.getInt
           val name = readName()
-          state.top = state.top.::(TopRecord(id, name))
+          state.top = state.top :+ TopRecord(id, name)
           //printf("\t%-8d: %s\n", id, name)
+        }
+      case 50 =>
+        state.teamSizes = List[Double]()
+        val c = message.getInt
+        for (_ <- 1 to c) {
+          val size = message.getFloat.toDouble
+          state.teamSizes = state.teamSizes :+ size
         }
       case 64 =>
         //println("Message #64: Field bounds")
