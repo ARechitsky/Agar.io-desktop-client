@@ -25,7 +25,8 @@ class GameState extends Publisher {
   var points = Map[Int, Point]()
   var field = Field(0, 0, 0, 0)
   var myPoints = Set[Int]()
-  var top = List[TopRecord]()
+  var top: List[TopRecord] = null
+  var teamSizes: List[Double] = null
 
   var dataUpdateCount = 0
   var framesUpdateCount = 0

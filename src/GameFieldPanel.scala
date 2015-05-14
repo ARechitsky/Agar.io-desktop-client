@@ -83,6 +83,10 @@ class GameFieldPanel(state: GameState) extends Panel {
     drawFieldBorder(g)
     drawVisibilityBorder(g)
     g setTransform oldT
+    g.translate(size.width * .75, 0)
+    g.scale(size.width / 400f, size.height / 200f)
+    drawLeaderBoard(g)
+    g setTransform oldT
   }
 
   private def drawPoint(g: _root_.scala.swing.Graphics2D, point: Point) {
@@ -112,7 +116,7 @@ class GameFieldPanel(state: GameState) extends Panel {
     val y0 = state.field.ymin
     val x1 = state.field.xmax
     val y1 = state.field.ymax
-    g.draw(new Rectangle2D.Double(x0, y0, x1 - x0, y1 - y0))
+    g draw new Rectangle2D.Double(x0, y0, x1 - x0, y1 - y0)
   }
 
   private def drawVisibilityBorder(g: _root_.scala.swing.Graphics2D) {
@@ -122,6 +126,18 @@ class GameFieldPanel(state: GameState) extends Panel {
     val x1 = cx.get + 960d / origRatio.get
     val y1 = cy.get + 540d / origRatio.get
     g draw new Rectangle2D.Double(x0, y0, x1 - x0, y1 - y0)
+  }
+
+  private def drawLeaderBoard(g: _root_.scala.swing.Graphics2D) {
+    g setColor new Color(0, 0, 0, 128)
+    g fill new Rectangle2D.Double(0, 0, 100, 100)
+    if (state.top != null) {
+      g setFont g.getFont.deriveFont(9)
+      g setColor Color.WHITE
+      for (i <- 1 to state.top.size) {
+        g.drawString("%d. %s".format(i, state.top(i).name), 5f, 9.5f + i * 10)
+      }
+    }
   }
 
   private def drawString(g: _root_.scala.swing.Graphics2D, s: String, fontSize: Double, cx: Double, baselineY: Double) {
