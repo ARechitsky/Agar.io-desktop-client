@@ -161,6 +161,8 @@ class NetworkAdapter(address: String, state: GameState) extends Publisher {
         val right = m.getDouble
         val bottom = m.getDouble
         state.field = Field(left, top, right, bottom)
+        state.hasField = true
+        state.updateState()
       //printf("\tX:%12.6f-%12.6f\n", left, right)
       //printf("\tY:%12.6f-%12.6f\n", top, bottom)
       case x =>

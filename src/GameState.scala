@@ -1,4 +1,5 @@
-import scala.swing.Color
+import scala.swing.event.Event
+import scala.swing.{Publisher, Color}
 
 case class Field(xmin: Double, ymin: Double, xmax: Double, ymax: Double)
 
@@ -12,7 +13,15 @@ case class Point(x: Double, y: Double, size: Double, color: Color, isVirus: Bool
 
 case class TopRecord(id: Int, name: String)
 
-class GameState extends Mutable {
+case class StateChanged(oldState: State.State, newState: State.State) extends Event
+
+object State extends Enumeration {
+  type State = Value
+  val NotInitialized, Spectating, Playing = Value
+}
+
+class GameState extends Publisher {
+  var state = State.NotInitialized
   var points = Map[Int, Point]()
   var field = Field(0, 0, 0, 0)
   var myPoints = Set[Int]()
@@ -24,9 +33,31 @@ class GameState extends Mutable {
   var fps = 0
   var dps = 0
 
+  var hasField = false
+  var hasPoints = false
+
+  def updateState() {
+    val oldState = state
+    var changed = true
+    state = state match {
+      case State.NotInitialized if hasField && hasPoints =>
+        State.Spectating
+      case State.Spectating if myPoints.nonEmpty =>
+        State.Playing
+      case State.Playing if myPoints.isEmpty =>
+        State.Spectating
+      case _ =>
+        changed = false
+        state
+    }
+    if (changed) publish(StateChanged(oldState, state))
+  }
+
   def setPoints(newPoints: Map[Int, Point]) {
     points = newPoints
     dataUpdateCount += 1
+    hasPoints = true
+    updateState()
   }
 
   def fixFpsAndDps() {
