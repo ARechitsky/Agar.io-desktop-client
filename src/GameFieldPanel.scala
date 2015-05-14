@@ -1,6 +1,6 @@
 import java.awt
 import java.awt.geom.{Rectangle2D, Line2D, Ellipse2D}
-import java.awt.{BasicStroke, RenderingHints, Color}
+import java.awt.{Font, BasicStroke, RenderingHints, Color}
 import javax.swing.Timer
 import scala.Some
 import scala.swing.event.{Key, KeyPressed, Event, MouseMoved}
@@ -51,7 +51,7 @@ class GameFieldPanel(state: GameState) extends Panel {
   def update() {
     val newCurrentPoints = state.points
     currentPoints = newCurrentPoints map {
-      case (k: Int, v: Point) => k -> ((currentPoints withDefault newCurrentPoints)(k) * 9 + v) / 10
+      case (k: Int, v: Point) => k -> (currentPoints.getOrElse(k, v) * 9 + v) / 10
     }
     val myPoints = state.myPoints filter currentPoints.contains
     val score = myPoints.foldLeft(0d)((s: Double, i: Int) => s + currentPoints(i).size)
@@ -95,13 +95,15 @@ class GameFieldPanel(state: GameState) extends Panel {
     val d = point.size * 2
     val color = if (point.isVirus) new Color(0xA0000000 | (point.color.getRGB & 0x00FFFFFF), true) else point.color
     g.setColor(color)
-    g.setStroke(new BasicStroke(Math.min(5f, point.size / 10).toFloat))
+    g.setStroke(new BasicStroke(Math.min(5f, d / 20).toFloat))
     g.fill(new Ellipse2D.Double(cx - d / 2, cy - d / 2, d, d))
     g.setColor(color.darker())
     g.draw(new Ellipse2D.Double(cx - d / 2, cy - d / 2, d, d))
     g.setColor(Color.WHITE)
     g.draw(new Line2D.Double(cx - d / 6, cy, cx + d / 6, cy))
     g.draw(new Line2D.Double(cx, cy - d / 6, cx, cy + d / 6))
+    drawString(g, point.name, d / 5, cx, cy - d / 15)
+    drawString(g, "%.3f".format(point.size), d / 8, cx, cy + d / 5)
     g.setColor(oldColor)
     g.setStroke(oldStroke)
   }
@@ -124,4 +126,17 @@ class GameFieldPanel(state: GameState) extends Panel {
     g.draw(new Rectangle2D.Double(x0, y0, x1 - x0, y1 - y0))
   }
 
+  private def drawString(g: _root_.scala.swing.Graphics2D, s: String, fontSize: Double, cx: Double, baselineY: Double) {
+    val oldColor = g.getColor
+    val oldStroke = g.getStroke
+    val nameGlyphVector = g.getFont.deriveFont(Font.BOLD, fontSize.toFloat).createGlyphVector(g.getFontRenderContext, s)
+    val nameShape = nameGlyphVector.getOutline((cx - nameGlyphVector.getLogicalBounds.getWidth / 2).toFloat, baselineY.toFloat)
+    g.setColor(Color.BLACK)
+    g.setStroke(new BasicStroke((fontSize / 15).toFloat))
+    g.draw(nameShape)
+    g.setColor(Color.WHITE)
+    g.fill(nameShape)
+    g.setColor(oldColor)
+    g.setStroke(oldStroke)
+  }
 }
