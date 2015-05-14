@@ -1,3 +1,5 @@
+import java.io.{InputStreamReader, BufferedReader}
+import java.net.{HttpURLConnection, URL}
 import scala.swing._
 import scala.swing.event.{ButtonClicked, Event}
 
@@ -25,7 +27,6 @@ class SettingsWindow() extends MainFrame {
   )
   regionsComboBox.renderer = ListView.GenericRenderer
   val findServerButton = new Button("Find server")
-  findServerButton.enabled = false
   val serverText = new TextField("213.168.249.134:443")
   val startButton = new Button("Start")
 
@@ -36,6 +37,16 @@ class SettingsWindow() extends MainFrame {
   reactions += {
     case ButtonClicked(source) if source == startButton =>
       publish(NeedToStartGame(serverText.text))
+    case ButtonClicked(source) if source == findServerButton =>
+      val data = regionsComboBox.selection.item.value + gameTypesComboBox.selection.item.value
+      val c = new URL("http://m.agar.io").openConnection().asInstanceOf[HttpURLConnection]
+      c.setRequestMethod("POST")
+      c.setDoOutput(true)
+      c.getOutputStream.write(data.getBytes)
+      c.getOutputStream.flush()
+      c.getOutputStream.close()
+      c.getResponseCode
+      serverText.text = new BufferedReader(new InputStreamReader(c.getInputStream)).readLine()
   }
   contents = new BoxPanel(Orientation.Vertical) {
     contents += new BoxPanel(Orientation.Horizontal) {
