@@ -54,9 +54,9 @@ class GameFieldPanel(state: GameState) extends Panel {
       case (k: Int, v: Point) => k -> (currentPoints.getOrElse(k, v) * 9 + v) / 10
     }
     val myPoints = state.myPoints filter currentPoints.contains
-    val score = myPoints.foldLeft(0d)((s: Double, i: Int) => s + currentPoints(i).size)
-    val newCx = myPoints.foldLeft(0d)((s: Double, i: Int) => s + currentPoints(i).x) / myPoints.size
-    val newCy = myPoints.foldLeft(0d)((s: Double, i: Int) => s + currentPoints(i).y) / myPoints.size
+    val score = (0d /: myPoints)(_ + currentPoints(_).size)
+    val newCx = (0d /: myPoints)(_ + currentPoints(_).x) / myPoints.size
+    val newCy = (0d /: myPoints)(_ + currentPoints(_).y) / myPoints.size
     if (score > 0) {
       val newOrigRatio = Math.pow(Math.min(64 / score, 1), 0.4)
       origRatio = Some((origRatio.getOrElse(newOrigRatio) * 9 + newOrigRatio) / 10)
@@ -79,12 +79,10 @@ class GameFieldPanel(state: GameState) extends Panel {
     g.scale(ratio, ratio)
     g.translate(-cx.get, -cy.get)
     //g.drawOval(cx.get.toInt - 50, cy.get.toInt - 50, 100, 100)
-    currentPoints.toList sortBy (_._2.size) foreach {
-      case (_, value: Point) => drawPoint(g, value)
-    }
+    currentPoints.values.toList sortBy (_.size) foreach (drawPoint(g, _))
     drawFieldBorder(g)
     drawVisibilityBorder(g)
-    g.setTransform(oldT)
+    g setTransform oldT
   }
 
   private def drawPoint(g: _root_.scala.swing.Graphics2D, point: Point) {
@@ -94,22 +92,22 @@ class GameFieldPanel(state: GameState) extends Panel {
     val cy = point.y
     val d = point.size * 2
     val color = if (point.isVirus) new Color(0xA0000000 | (point.color.getRGB & 0x00FFFFFF), true) else point.color
-    g.setColor(color)
-    g.setStroke(new BasicStroke(Math.min(5f, d / 20).toFloat))
-    g.fill(new Ellipse2D.Double(cx - d / 2, cy - d / 2, d, d))
-    g.setColor(color.darker())
-    g.draw(new Ellipse2D.Double(cx - d / 2, cy - d / 2, d, d))
-    g.setColor(Color.WHITE)
-    g.draw(new Line2D.Double(cx - d / 6, cy, cx + d / 6, cy))
-    g.draw(new Line2D.Double(cx, cy - d / 6, cx, cy + d / 6))
+    g setColor color
+    g setStroke new BasicStroke(Math.min(5f, d / 20).toFloat)
+    g fill new Ellipse2D.Double(cx - d / 2, cy - d / 2, d, d)
+    g setColor color.darker
+    g draw new Ellipse2D.Double(cx - d / 2, cy - d / 2, d, d)
+    g setColor Color.WHITE
+    g draw new Line2D.Double(cx - d / 6, cy, cx + d / 6, cy)
+    g draw new Line2D.Double(cx, cy - d / 6, cx, cy + d / 6)
     drawString(g, point.name, d / 5, cx, cy - d / 15)
-    drawString(g, "%.3f".format(point.size), d / 8, cx, cy + d / 5)
-    g.setColor(oldColor)
-    g.setStroke(oldStroke)
+    drawString(g, "%.3f" format point.size, d / 8, cx, cy + d / 5)
+    g setColor oldColor
+    g setStroke oldStroke
   }
 
   private def drawFieldBorder(g: _root_.scala.swing.Graphics2D) {
-    g.setColor(Color.RED)
+    g setColor Color.RED
     val x0 = state.field.xmin
     val y0 = state.field.ymin
     val x1 = state.field.xmax
@@ -118,12 +116,12 @@ class GameFieldPanel(state: GameState) extends Panel {
   }
 
   private def drawVisibilityBorder(g: _root_.scala.swing.Graphics2D) {
-    g.setColor(new Color(0, 255, 0, 128))
+    g setColor new Color(0, 255, 0, 128)
     val x0 = cx.get - 960d / origRatio.get
     val y0 = cy.get - 540d / origRatio.get
     val x1 = cx.get + 960d / origRatio.get
     val y1 = cy.get + 540d / origRatio.get
-    g.draw(new Rectangle2D.Double(x0, y0, x1 - x0, y1 - y0))
+    g draw new Rectangle2D.Double(x0, y0, x1 - x0, y1 - y0)
   }
 
   private def drawString(g: _root_.scala.swing.Graphics2D, s: String, fontSize: Double, cx: Double, baselineY: Double) {
@@ -131,12 +129,12 @@ class GameFieldPanel(state: GameState) extends Panel {
     val oldStroke = g.getStroke
     val nameGlyphVector = g.getFont.deriveFont(Font.BOLD, fontSize.toFloat).createGlyphVector(g.getFontRenderContext, s)
     val nameShape = nameGlyphVector.getOutline((cx - nameGlyphVector.getLogicalBounds.getWidth / 2).toFloat, baselineY.toFloat)
-    g.setColor(Color.BLACK)
-    g.setStroke(new BasicStroke((fontSize / 15).toFloat))
-    g.draw(nameShape)
-    g.setColor(Color.WHITE)
-    g.fill(nameShape)
-    g.setColor(oldColor)
-    g.setStroke(oldStroke)
+    g setColor Color.BLACK
+    g setStroke new BasicStroke((fontSize / 15).toFloat)
+    g draw nameShape
+    g setColor Color.WHITE
+    g fill nameShape
+    g setColor oldColor
+    g setStroke oldStroke
   }
 }

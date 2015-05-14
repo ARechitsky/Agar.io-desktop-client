@@ -39,14 +39,14 @@ class SettingsWindow() extends MainFrame {
       publish(NeedToStartGame(serverText.text))
     case ButtonClicked(source) if source == findServerButton =>
       val data = regionsComboBox.selection.item.value + gameTypesComboBox.selection.item.value
-      val c = new URL("http://m.agar.io").openConnection().asInstanceOf[HttpURLConnection]
-      c.setRequestMethod("POST")
-      c.setDoOutput(true)
-      c.getOutputStream.write(data.getBytes)
+      val c = new URL("http://m.agar.io").openConnection.asInstanceOf[HttpURLConnection]
+      c setRequestMethod "POST"
+      c setDoOutput true
+      c.getOutputStream write data.getBytes
       c.getOutputStream.flush()
       c.getOutputStream.close()
       c.getResponseCode
-      serverText.text = new BufferedReader(new InputStreamReader(c.getInputStream)).readLine()
+      serverText.text = new BufferedReader(new InputStreamReader(c.getInputStream)).readLine
   }
   contents = new BoxPanel(Orientation.Vertical) {
     contents += new BoxPanel(Orientation.Horizontal) {

@@ -70,9 +70,9 @@ class GameState extends Publisher {
   def print() {
     printf("Field: %f-%fx%f-%f\n", field.xmin, field.xmax, field.ymin, field.ymax)
     println("Points:")
-    points foreach ((x: (Int, Point)) => {
-      printf("\t%c%8d: %s\n", if (myPoints contains x._1) '*' else ' ', x _1, x._2 toString)
-    })
+    points foreach {
+      case (k, v) => printf("\t%c%8d: %s\n", if (myPoints contains k) '*' else ' ', k, v.toString)
+    }
     println("Top:")
     top foreach println
   }

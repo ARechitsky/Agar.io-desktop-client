@@ -12,12 +12,12 @@ case class Disconnected(reason: CloseReason) extends Event
 case class ConnectionError(thr: Throwable) extends Event
 
 class NetworkAdapter(address: String, state: GameState) extends Publisher {
-  private def createBuffer(size: Int) = ByteBuffer.allocate(size).order(ByteOrder.LITTLE_ENDIAN)
+  private def createBuffer(size: Int) = ByteBuffer allocate size order ByteOrder.LITTLE_ENDIAN
 
   private def Byte2Int(b: Byte) = (b.toInt + 256) % 256
 
   private val endpoint = {
-    val client = ClientManager.createClient()
+    val client = ClientManager.createClient
 
     /*client.getProperties.put(
       ClientProperties.PROXY_URI, "http://localhost:8888"
@@ -32,7 +32,7 @@ class NetworkAdapter(address: String, state: GameState) extends Publisher {
       }
 
       override def onOpen(session: Session, config: EndpointConfig) {
-        session.addMessageHandler(Handler)
+        session addMessageHandler Handler
 
       }
 
@@ -43,36 +43,36 @@ class NetworkAdapter(address: String, state: GameState) extends Publisher {
       override def onError(session: Session, thr: Throwable) {
         publish(ConnectionError(thr))
       }
-    }, ClientEndpointConfig.Builder.create().configurator(new Configurator {
+    }, ClientEndpointConfig.Builder.create.configurator(new Configurator {
       override def beforeRequest(headers: util.Map[String, util.List[String]]) {
         headers.put("Origin", util.Arrays.asList("http://agar.io"))
       }
-    }).build(),
-      URI.create("ws://" + address)).getBasicRemote
+    }).build,
+      URI create ("ws://" + address)).getBasicRemote
   }
 
   private def sendBinary(b: ByteBuffer) {
     b.rewind()
-    endpoint.sendBinary(b)
+    endpoint sendBinary b
   }
 
   private def sendText(t: String) {
-    endpoint.sendText(t)
+    endpoint sendText t
   }
 
   def connect() {
-    sendBinary(createBuffer(5).put(255.toByte).putInt(1))
+    sendBinary(createBuffer(5) put 255.toByte putInt 1)
   }
 
   def sendNick(nick: String) {
     val m = createBuffer(1 + 2 * nick.length)
-    m.put(0 toByte)
-    nick foreach ((c: Char) => m.putChar(c))
+    m put 0.toByte
+    nick foreach m.putChar
     sendBinary(m)
   }
 
   def parse(m: ByteBuffer) {
-    val message = m.order(ByteOrder.LITTLE_ENDIAN)
+    val message = m order ByteOrder.LITTLE_ENDIAN
     def readName(): String = {
       val ret = new StringBuilder
       var ch = message.getChar
@@ -83,7 +83,7 @@ class NetworkAdapter(address: String, state: GameState) extends Publisher {
       ret.toString()
     }
 
-    message.get() match {
+    message.get match {
       case 16 =>
         //println("Message #16: Current situation")
         val killsCount = message.getShort

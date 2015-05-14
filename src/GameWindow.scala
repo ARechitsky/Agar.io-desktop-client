@@ -51,15 +51,15 @@ class GameWindow(address: String) extends Frame {
     }
   }
   val timer = new Timer(10, Swing.ActionListener(e => {
-    canvas update()
+    canvas.update()
   }))
   timer.start()
   val secondTimer = new Timer(1000, Swing.ActionListener(e => {
-    state fixFpsAndDps()
+    state.fixFpsAndDps()
     fpsLabel.text = "FPS: %d, Data updates count: %d".format(state.fps, state.dps)
   }))
   secondTimer.start()
   canvas.requestFocus()
 
-  networkAdapter connect()
+  networkAdapter.connect()
 }
