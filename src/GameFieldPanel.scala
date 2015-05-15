@@ -134,8 +134,8 @@ class GameFieldPanel(state: GameState) extends Panel {
     if (state.top != null) {
       g setFont g.getFont.deriveFont(9)
       g setColor Color.WHITE
-      for (i <- 1 to state.top.size) {
-        g.drawString("%d. %s".format(i, state.top(i).name), 5f, 9.5f + i * 10)
+      for (i <- 0 to state.top.size - 1) {
+        g.drawString("%d. %s".format(i + 1, state.top(i).name), 5f, 9.5f + i * 10)
       }
     }
     else if (state.teamSizes != null) {
